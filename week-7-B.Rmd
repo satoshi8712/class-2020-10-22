@@ -73,7 +73,7 @@ dim(pp)
 
 Define D as the number of hours difference between the workload of two randomly selected courses. What is the 90% confidence interval within which the difference should fall?  
 
-```{r scene 3-2}
+```{r scene 3-2-1}
 
 course_diff <- tibble(course1 = pp[,1], 
        course2 = pp[,2], 
@@ -83,11 +83,26 @@ quantile(course_diff$diff, probs = c(0.05, 0.95))
 
 ```
 
-What is your posterior probability distribution for D? 
-
-```{r scene 3-3}
+```{r scene 3-2-2}
 
 sum(course_diff$diff <= 8) / length(course_diff$diff)
+
+```
+
+What is your posterior probability distribution for D? 
+
+```{r scene 3-4}
+
+course_diff %>% 
+  ggplot(aes(x = diff, 
+             y = after_stat(count/sum(count)))) +
+  geom_histogram(bins = 100, 
+                 color = "white") +
+  labs(title = "Posterior Probability Distribution", 
+       subtitle = "Difference in Hours of Work of 2 Randomly Selected Harvard courses",
+       x = "Hours", 
+       y = "Probability") +
+  theme_classic()
 
 ```
 
