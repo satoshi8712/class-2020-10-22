@@ -26,12 +26,34 @@ The parameter $H$ is still the average number of hours of work reported by stude
 
 Review the Cardinal Virtues which serve as our guide for data science. Under Justice, is this model predictive or causal? What would the Preceptor Table look like? Write down the mathematical model we are using.
 
+```{r scene 1-1}
+fit_obj <- stan_glm(formula = hours ~ 1, 
+                    data = qscores, 
+                    refresh = 0)
+```
+
+```{r scene 1-2}
+fit_obj 
+```
 
 
 ## Scene 2
 
 **Prompt:** Create a plot of the posterior probability distribution for $H$. Interpret the plot. 
 
+```{r scene 2}
+
+fit_obj %>% 
+  as_tibble() %>% 
+  rename(mu = `(Intercept)`) %>% 
+  ggplot(aes(x = mu, 
+             y = after_stat(count/sum(count)))) +
+  geom_histogram(bins = 25, 
+                 color = "white") +
+  labs(title = "Posterior Probability Distribution") +
+  theme_classic()
+
+```
 
 
 
@@ -41,12 +63,32 @@ Review the Cardinal Virtues which serve as our guide for data science. Under Jus
 
 What do the rows and columns mean in the matrix returned by `posterior_predict()` mean?
 
+```{r scene 3-1}
+
+pp <- posterior_predict(fit_obj)
+
+dim(pp)
+
+```
 
 Define D as the number of hours difference between the workload of two randomly selected courses. What is the 90% confidence interval within which the difference should fall?  
 
+```{r scene 3-2}
+
+course_diff <- tibble(course1 = pp[,1], 
+       course2 = pp[,2], 
+       diff = abs(course2 - course1))
+
+quantile(course_diff$diff, probs = c(0.05, 0.95))
+
+```
 
 What is your posterior probability distribution for D? 
 
+```{r scene 3-3}
 
+sum(course_diff$diff <= 8) / length(course_diff$diff)
+
+```
 
 
